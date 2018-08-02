@@ -1,8 +1,10 @@
 #include <SPI.h>
 #include "nRF24L01.h"
 #include "RF24.h"
-#define x_centre 485
-#define y_centre 503
+#define x_centre 503
+
+#define y_centre 485
+#define deadband 15
 int joystick[2];
 RF24 radio(7, 8);
 
@@ -55,20 +57,20 @@ void loop()
       //radio.read(&text, sizeof(text));
       radio.read(&value, sizeof(value));
       //int coordinates[] ={value.x,value.y};
-      Serial.print(t1);
-      Serial.print("\t");
-      Serial.print(value.x);
-      Serial.print("\t");
-      Serial.print(value.y);
-      Serial.print("\t");
-      Serial.print(value.z);
-     Serial.print("\t");
+      //Serial.print(t1);
+      //Serial.print("\t");
+      //Serial.print(value.x);
+      //Serial.print("\t");
+      //Serial.print(value.y);
+      //Serial.print("\t");
+      //Serial.print(value.z);
+     //Serial.print("\t");
       Serial.print(value.joystick_x_info);
       Serial.print("\t");
       Serial.print(value.joystick_y_info);
       Serial.print("\t");
-       Serial.println(value.button_state_info);
-      t0 = t1;
+      Serial.println(value.button_state_info);
+      //t0 = t1;
 
       //Serial.println("X-acceleration");
       //int number=atol(text);
@@ -77,7 +79,7 @@ void loop()
       //Serial.println(value);
       //delay(100);
 
-  if (value.joystick_x_info<x_centre){
+  if (value.joystick_x_info<(x_centre-deadband)){
 digitalWrite (1, LOW);
 digitalWrite (2, HIGH);
 digitalWrite (3, HIGH);
@@ -85,7 +87,7 @@ digitalWrite (4, LOW);
 Serial.println( "LEFT");
 
 }
-else if (value.joystick_x_info>x_centre){
+if (value.joystick_x_info>(x_centre+deadband))  {
   digitalWrite (1, HIGH);
 digitalWrite (2, LOW);
 digitalWrite (3, LOW);
@@ -93,25 +95,28 @@ digitalWrite (4, HIGH);
 Serial.println( "Right");
   
 }
-else if (value.joystick_y_info>y_centre){
+
+if (value.joystick_y_info>(y_centre+deadband)){
 digitalWrite (1, HIGH);
 digitalWrite (2, LOW);
 digitalWrite (3, HIGH);
 digitalWrite (4, LOW);
 Serial.println( "Forward");
 }
-else if (value.joystick_y_info<y_centre){
+ if (value.joystick_y_info<(y_centre-deadband)){
 digitalWrite (1, LOW);
 digitalWrite (2, HIGH);
 digitalWrite (3, LOW);
 digitalWrite (4, HIGH);
 Serial.println( "Back");
 }
-else {
+
+if (value.joystick_y_info==y_centre&&value.joystick_x_info==x_centre){
 digitalWrite (1, LOW);
 digitalWrite (2, LOW);
 digitalWrite (3, LOW);
 digitalWrite (4, LOW);
+Serial.println( "STOP");
 }
     }
     else
